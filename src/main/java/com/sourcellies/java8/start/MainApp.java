@@ -1,0 +1,73 @@
+package com.sourcellies.java8.start;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sourcellies.java8.json.WeatherInfoJson;
+
+public class MainApp {
+
+	static final String WEATHER_SERVICE = "http://api.openweathermap.org/data/2.5/weather?zip=${zip},us";
+
+	public static Double capteurTemperature(String url) {
+		URL urlLink = null;
+		HttpURLConnection connection = null;
+		try {
+			urlLink = new URL(url);
+			connection = (HttpURLConnection) urlLink.openConnection();
+			ObjectMapper objectMapper = new ObjectMapper();
+			WeatherInfoJson weatherInfoJson = objectMapper.readValue(connection.getInputStream(),
+					WeatherInfoJson.class);
+			return weatherInfoJson.getMain().getTemp();
+
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		return 0.0;
+	}
+
+	public static Double kelvinToFahrenheit(Double Kelvin) {
+		return ((Double.valueOf(Kelvin) - 273.15) * 1.8000) + 32;  
+	}
+
+	public static void main(String agr[]) throws Exception {
+		List<String> urls = Collections.synchronizedList(new ArrayList<>());
+
+		String path = MainApp.class.getClassLoader().getResource("UAS_Zip.txt").getPath();
+		
+		Files.lines(Paths.get(path)).parallel().forEach(e -> urls.add(WEATHER_SERVICE.replace("${zip}", e)));
+
+		Runnable parallel = () -> {
+			Long timeStarte = System.currentTimeMillis();
+			System.out.println("Parallel Min Temp: " + 
+							urls.parallelStream().map(MainApp::capteurTemperature)
+												 .filter(temp -> temp > 0)
+												 .map(MainApp::kelvinToFahrenheit)
+												 .min(Double::compare)
+												 .get());
+			System.out.println("Parallel Took time: " + (System.currentTimeMillis() - timeStarte));
+		};
+
+		Runnable serial = () -> {
+			Long timeStarte = System.currentTimeMillis();
+			System.out.println("Serial Min Temp: " + 
+							 urls.stream().map(MainApp::capteurTemperature)
+						 				  .filter(temp -> temp > 0)
+						 				  .map(MainApp::kelvinToFahrenheit)
+						 				  .min(Double::compare)
+						 				  .get());
+			System.out.println("Serial Took time: " + (System.currentTimeMillis() - timeStarte));
+		};
+
+		new Thread(serial).start();
+		new Thread(parallel).start();
+
+	}
+
+}

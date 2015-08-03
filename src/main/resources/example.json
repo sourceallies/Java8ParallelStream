@@ -1,0 +1,42 @@
+{
+   "coord":{
+      "lon":-93.75,
+      "lat":41.57
+   },
+   "weather":[
+      {
+         "id":800,
+         "main":"Clear",
+         "description":"sky is clear",
+         "icon":"01n"
+      }
+   ],
+   "base":"stations",
+   "main":{
+      "temp":293.97,
+      "pressure":1020,
+      "humidity":94,
+      "temp_min":292.15,
+      "temp_max":295.15
+   },
+   "visibility":16093,
+   "wind":{
+      "speed":0.6,
+      "deg":329.501
+   },
+   "clouds":{
+      "all":1
+   },
+   "dt":1438314521,
+   "sys":{
+      "type":1,
+      "id":846,
+      "message":0.0106,
+      "country":"US",
+      "sunrise":1438340911,
+      "sunset":1438392817
+   },
+   "id":4881346,
+   "name":"West Des Moines",
+   "cod":200
+}
