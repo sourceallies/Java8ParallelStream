@@ -15,7 +15,7 @@ public class MainApp {
 
 	static final String WEATHER_SERVICE = "http://api.openweathermap.org/data/2.5/weather?zip=${zip},us";
 
-	public static Double capteurTemperature(String url) {
+	public static Double captureTemperature(String url) {
 		URL urlLink = null;
 		HttpURLConnection connection = null;
 		try {
@@ -46,7 +46,7 @@ public class MainApp {
 		Runnable parallel = () -> {
 			Long timeStarte = System.currentTimeMillis();
 			System.out.println("Parallel Min Temp: " + 
-							urls.parallelStream().map(MainApp::capteurTemperature)
+							urls.parallelStream().map(MainApp::captureTemperature)
 												 .filter(temp -> temp > 0)
 												 .map(MainApp::kelvinToFahrenheit)
 												 .min(Double::compare)
@@ -57,7 +57,7 @@ public class MainApp {
 		Runnable serial = () -> {
 			Long timeStarte = System.currentTimeMillis();
 			System.out.println("Serial Min Temp: " + 
-							 urls.stream().map(MainApp::capteurTemperature)
+							 urls.stream().map(MainApp::captureTemperature)
 						 				  .filter(temp -> temp > 0)
 						 				  .map(MainApp::kelvinToFahrenheit)
 						 				  .min(Double::compare)
