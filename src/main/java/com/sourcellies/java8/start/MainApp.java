@@ -52,9 +52,9 @@ public class MainApp {
 
 		Runnable sequential = () -> {
 			Long timeStarte = System.currentTimeMillis();
-			System.out.println("Serial Min Temp: " + urls.stream().map(MainApp::captureTemperature)
+			System.out.println("Sequential Min Temp: " + urls.stream().map(MainApp::captureTemperature)
 					.filter(temp -> temp > 0).map(MainApp::kelvinToFahrenheit).min(Double::compare).get());
-			System.out.println("Serial Took time: " + (System.currentTimeMillis() - timeStarte));
+			System.out.println("Sequential Took time: " + (System.currentTimeMillis() - timeStarte));
 		};
 
 		new Thread(sequential).start();
