@@ -33,39 +33,31 @@ public class MainApp {
 	}
 
 	public static Double kelvinToFahrenheit(Double Kelvin) {
-		return ((Double.valueOf(Kelvin) - 273.15) * 1.8000) + 32;  
+		return ((Double.valueOf(Kelvin) - 273.15) * 1.8000) + 32;
 	}
 
 	public static void main(String agr[]) throws Exception {
 		List<String> urls = Collections.synchronizedList(new ArrayList<>());
 
 		String path = MainApp.class.getClassLoader().getResource("UAS_Zip.txt").getPath();
-		
+
 		Files.lines(Paths.get(path)).parallel().forEach(e -> urls.add(WEATHER_SERVICE.replace("${zip}", e)));
 
 		Runnable parallel = () -> {
 			Long timeStarte = System.currentTimeMillis();
-			System.out.println("Parallel Min Temp: " + 
-							urls.parallelStream().map(MainApp::captureTemperature)
-												 .filter(temp -> temp > 0)
-												 .map(MainApp::kelvinToFahrenheit)
-												 .min(Double::compare)
-												 .get());
+			System.out.println("Parallel Min Temp: " + urls.parallelStream().map(MainApp::captureTemperature)
+					.filter(temp -> temp > 0).map(MainApp::kelvinToFahrenheit).min(Double::compare).get());
 			System.out.println("Parallel Took time: " + (System.currentTimeMillis() - timeStarte));
 		};
 
-		Runnable serial = () -> {
+		Runnable sequential = () -> {
 			Long timeStarte = System.currentTimeMillis();
-			System.out.println("Serial Min Temp: " + 
-							 urls.stream().map(MainApp::captureTemperature)
-						 				  .filter(temp -> temp > 0)
-						 				  .map(MainApp::kelvinToFahrenheit)
-						 				  .min(Double::compare)
-						 				  .get());
+			System.out.println("Serial Min Temp: " + urls.stream().map(MainApp::captureTemperature)
+					.filter(temp -> temp > 0).map(MainApp::kelvinToFahrenheit).min(Double::compare).get());
 			System.out.println("Serial Took time: " + (System.currentTimeMillis() - timeStarte));
 		};
 
-		new Thread(serial).start();
+		new Thread(sequential).start();
 		new Thread(parallel).start();
 
 	}
