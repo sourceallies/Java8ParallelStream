@@ -41,7 +41,6 @@ public class MainApp {
 		String path = MainApp.class.getClassLoader().getResource("UAS_Zip.txt").getPath();
 
 		List<String> urls = Files.lines(Paths.get(path)).parallel()
-											 .limit(100)
 											 .map(e -> WEATHER_SERVICE.replace("${zip}", e))
 											 .collect(toCollection(ArrayList::new));
 
