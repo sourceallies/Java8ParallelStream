@@ -5,8 +5,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import static java.util.stream.Collectors.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcellies.java8.json.WeatherInfoJson;
@@ -37,23 +37,34 @@ public class MainApp {
 	}
 
 	public static void main(String agr[]) throws Exception {
-		List<String> urls = Collections.synchronizedList(new ArrayList<>());
 
 		String path = MainApp.class.getClassLoader().getResource("UAS_Zip.txt").getPath();
 
-		Files.lines(Paths.get(path)).parallel().forEach(e -> urls.add(WEATHER_SERVICE.replace("${zip}", e)));
+		List<String> urls = Files.lines(Paths.get(path)).parallel()
+											 .limit(100)
+											 .map(e -> WEATHER_SERVICE.replace("${zip}", e))
+											 .collect(toCollection(ArrayList::new));
 
 		Runnable parallel = () -> {
 			Long timeStarte = System.currentTimeMillis();
-			System.out.println("Parallel Min Temp: " + urls.parallelStream().map(MainApp::captureTemperature)
-					.filter(temp -> temp > 0).map(MainApp::kelvinToFahrenheit).min(Double::compare).get());
+			System.out.println("Parallel Min Temp: " + 
+						urls.parallelStream()
+							.map(MainApp::captureTemperature)
+							.filter(temp -> temp > 0)
+							.map(MainApp::kelvinToFahrenheit)
+							.min(Double::compare)
+							.get());
 			System.out.println("Parallel Took time: " + (System.currentTimeMillis() - timeStarte));
 		};
 
 		Runnable sequential = () -> {
 			Long timeStarte = System.currentTimeMillis();
-			System.out.println("Sequential Min Temp: " + urls.stream().map(MainApp::captureTemperature)
-					.filter(temp -> temp > 0).map(MainApp::kelvinToFahrenheit).min(Double::compare).get());
+			System.out.println("Sequential Min Temp: " + 
+						urls.stream().map(MainApp::captureTemperature)
+							.filter(temp -> temp > 0)
+							.map(MainApp::kelvinToFahrenheit)
+							.min(Double::compare)
+							.get());
 			System.out.println("Sequential Took time: " + (System.currentTimeMillis() - timeStarte));
 		};
 
