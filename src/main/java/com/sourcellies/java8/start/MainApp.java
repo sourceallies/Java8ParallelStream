@@ -38,14 +38,14 @@ public class MainApp {
 
 	public static void main(String agr[]) throws Exception {
 
-		String path = MainApp.class.getClassLoader().getResource("UAS_Zip.txt").getPath();
+		String path = MainApp.class.getClassLoader().getResource("USA_Zip.txt").getPath();
 
 		List<String> urls = Files.lines(Paths.get(path)).parallel()
 											 .map(e -> WEATHER_SERVICE.replace("${zip}", e))
 											 .collect(toCollection(ArrayList::new));
 
 		Runnable parallel = () -> {
-			Long timeStarte = System.currentTimeMillis();
+			Long timeStarted = System.currentTimeMillis();
 			System.out.println("Parallel Min Temp: " + 
 						urls.parallelStream()
 							.map(MainApp::captureTemperature)
@@ -53,18 +53,18 @@ public class MainApp {
 							.map(MainApp::kelvinToFahrenheit)
 							.min(Double::compare)
 							.get());
-			System.out.println("Parallel Took time: " + (System.currentTimeMillis() - timeStarte));
+			System.out.println("Parallel Took time: " + (System.currentTimeMillis() - timeStarted));
 		};
 
 		Runnable sequential = () -> {
-			Long timeStarte = System.currentTimeMillis();
+			Long timeStarted = System.currentTimeMillis();
 			System.out.println("Sequential Min Temp: " + 
 						urls.stream().map(MainApp::captureTemperature)
 							.filter(temp -> temp > 0)
 							.map(MainApp::kelvinToFahrenheit)
 							.min(Double::compare)
 							.get());
-			System.out.println("Sequential Took time: " + (System.currentTimeMillis() - timeStarte));
+			System.out.println("Sequential Took time: " + (System.currentTimeMillis() - timeStarted));
 		};
 
 		new Thread(sequential).start();
